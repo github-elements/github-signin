@@ -157,13 +157,14 @@ process is succesful and __instance__ holds a
           });
 
           var listener = function(event) {
+            window.removeEventListener('message', listener);
+
             if (event.origin !== self.origin) {
               self.fire('authorization-failure');
               return;
             }
 
             self.token = event.data;
-            window.removeEventListener('message', listener);
             self.fire('authorization-success');
           };
 
@@ -171,6 +172,7 @@ process is succesful and __instance__ holds a
 
           if (!window.open(location, 'GITHUB_SIGNIN_ELEMENT')) {
             this.fire('authorization-failure');
+            window.removeEventListener('message', listener);
           }
         }
       });
