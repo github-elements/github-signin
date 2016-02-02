@@ -1,0 +1,73 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.Github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.Github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.Github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.Github.io/PATENTS.txt
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="github-api-import.html">
+
+<!--
+A wrapper element for the [Github API](https://www.npmjs.com/package/Github-api).
+
+Example:
+
+    <github-api token="asdf12345" instance="{{instance}}"></github-api>
+
+@group Github Elements
+@element Github-signin
+@demo demo/index.html
+-->
+<dom-module id="github-api">
+  <script>
+    HTMLImports.whenReady(function() {
+      'use strict';
+
+      Polymer({
+
+        is: 'github-api',
+
+        properties: {
+          /**
+           * The token of the user to authorize your application.
+           */
+          token: {
+            type: String,
+            observer: '_createInstance'
+          },
+          /**
+           * Github object to invoke APIs to Github.
+           */
+          instance: {
+            type: Object,
+            readOnly: true,
+            notify: true
+          },
+          /**
+           * True iff the user was succesfully signed in.
+           */
+          signedIn: {
+            type: Boolean,
+            readOnly: true,
+            notify: true,
+            value: false
+          }
+        },
+
+        // Element Behavior
+
+        _createInstance: function(token) {
+          this._setSignedIn(false);
+          this._setInstance(new Github({
+            token: token,
+            auth: 'oauth'
+          }));
+          this._setSignedIn(true);
+        }
+      });
+    });
+  </script>
+</dom-module>

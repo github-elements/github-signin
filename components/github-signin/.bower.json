@@ -1,0 +1,38 @@
+{
+  "name": "github-signin",
+  "authors": [
+    "Tim van der Lippe <tvanderlippe@gmail.com>"
+  ],
+  "description": "A wrapper element for the GitHub API.",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "github",
+    "github-api"
+  ],
+  "main": "github-signin.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/github-elements/github-signin/",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "github-api": "^0.11.2"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "*"
+  },
+  "_release": "9b3d75ecb0",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "9b3d75ecb03a42eaea837f43c44a71ae39b9043e"
+  },
+  "_source": "git://github.com/github-elements/github-signin.git",
+  "_target": "master",
+  "_originalSource": "github-elements/github-signin",
+  "_direct": true
+}
