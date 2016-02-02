@@ -1,0 +1,12 @@
+<html>
+<head>
+  <script>
+    window.opener.postMessage('<%=token%>',
+      'http://localhost:8080/components/github-signin/#github-signin');
+    window.close();
+  </script>
+</head>
+<body>
+  Redirecting...
+</body>
+</html>

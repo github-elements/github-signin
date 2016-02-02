@@ -1,0 +1,179 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.Github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.Github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.Github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.Github.io/PATENTS.txt
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-button/paper-button.html">
+
+<link rel="import" href="github-api.html">
+
+<!--
+
+Example:
+
+    <github-signin client_id="caa5f6ff9c79238800ab"
+      redirect_endpoint="endpoint/to/process/callback/from/github"
+      origin="http://localhost:3000"
+    ></github-signin>
+
+The sign-in element will send an authorization request to GitHub. The request
+will be constructed with the provided parameters. The request_uri will be the
+concatenation of __origin__ + __redirect_endpoint__.
+
+To process the authorization in secure way, the application on the redirect_uri
+must handle the callback from GitHub and obtain the access token as described
+in the GitHub [OAuth guide](https://developer.github.com/v3/oauth/).
+
+Once a token is obtained from GitHub, load a HTML page that posts a message
+to the __window.opener__ JavaScript object
+
+Example:
+
+    <html>
+    <head>
+      <script>
+        // <%=token%> is replaced with the OAuth token obtained from GitHub
+        window.opener.postMessage('<%=token%>',
+            'http://localhost:8080/components/github-signin/#github-signin');
+        window.close();
+      </script>
+    </head>
+    <body>
+      Redirecting...
+    </body>
+    </html>
+
+Once the main window received the message with the token, the authorization
+process is succesful and __instance__ holds a
+[Github API](https://www.npmjs.com/package/Github-api) object.
+
+@group Github Elements
+@element github-signin
+@demo demo/index.html
+-->
+<dom-module id="github-signin">
+  <template>
+    <style>
+      paper-button {
+        background-color: #6cc644;
+      }
+    </style>
+
+    <github-api token="{{token}}" instance="{{instance}}" signed-in="{{signedIn}}"></github-api>
+
+    <template is="dom-if" if="{{!signedIn}}">
+      <paper-button raised on-tap="redirect">Authenticate</paper-button>
+    </template>
+  </template>
+  <script>
+    HTMLImports.whenReady(function() {
+      'use strict';
+
+      Polymer({
+
+        is: 'github-signin',
+
+        properties: {
+          /**
+           * The client ID you received from GitHub when you registered.
+           */
+          client_id: String,
+          /**
+           * The URL in your app where users will be sent after authorization.
+           */
+          redirect_endpoint: {
+            type: String,
+            value: ''
+          },
+          /**
+           * A comma separated list of scopes. If not provided, scope defaults
+           * to an empty list of scopes for users that don't have a valid token
+           * for the app. For users who do already have a valid token for
+           * the app, the user won't be shown the OAuth authorization page with
+           * the list of scopes. Instead, this step of the flow will
+           * automatically complete with the same scopes that were used last
+           * time the user completed the flow.
+           */
+          scope: String,
+          /**
+           * Origin that invokes a postMessage to the main window.
+           */
+          origin: String,
+          /**
+           * Github object to invoke APIs to Github.
+           */
+          instance: {
+            type: Object,
+            readOnly: true,
+            notify: true
+          },
+          /**
+           * OAuth token used to authenticate with the GitHub api.
+           */
+          token: {
+            type: String,
+            notify: true
+          }
+        },
+
+        // Element Behavior
+
+        /**
+         * Fired when the authorization process is completed and succesful.
+         *
+         * @event authorization-success
+         */
+
+        /**
+         * Fired when the authorization process is completed and failed.
+         *
+         * @event authorization-failure
+         */
+
+        /**
+         * Redirect the client to GitHub to obtain an authentication token.
+         * __client_id__ and __redirect_uri__ are required. __scope__ and __state__
+         * are optionally appended.
+         *
+         * This method will listen for a message containing the __token__ to
+         * store and use to communicate with GitHub.
+         */
+        redirect: function() {
+          var location = 'https://github.com/login/oauth/authorize?client_id=' +
+                          this.client_id + '&redirect_uri=' +
+                          this.origin + this.redirect_endpoint,
+            self = this;
+
+          ['scope', 'state'].forEach(function(field) {
+            var value;
+            if (value = self[field]) {
+              location += '&' + field + '=' + value;
+            }
+          });
+
+          var listener = function(event) {
+            if (event.origin !== self.origin) {
+              self.fire('authorization-failure');
+              return;
+            }
+
+            self.token = event.data;
+            window.removeEventListener('message', listener);
+            self.fire('authorization-success');
+          };
+
+          window.addEventListener('message', listener, false);
+
+          if (!window.open(location, 'GITHUB_SIGNIN_ELEMENT')) {
+            this.fire('authorization-failure');
+          }
+        }
+      });
+    });
+  </script>
+</dom-module>
