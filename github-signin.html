@@ -64,7 +64,7 @@ process is succesful and __instance__ holds a
       }
     </style>
 
-    <github-api token="{{token}}" instance="{{instance}}" signed-in="{{signedIn}}"></github-api>
+    <github-api token="{{token}}" on-instance-changed="_updateInstance" signed-in="{{signedIn}}"></github-api>
 
     <template is="dom-if" if="{{!signedIn}}">
       <paper-button raised on-tap="redirect">Authenticate</paper-button>
@@ -122,6 +122,10 @@ process is succesful and __instance__ holds a
         },
 
         // Element Behavior
+
+        _updateInstance: function(event) {
+          this._setInstance(event.detail.value);
+        },
 
         /**
          * Fired when the authorization process is completed and succesful.
