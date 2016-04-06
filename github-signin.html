@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.Github.io/PATEN
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 
 <link rel="import" href="github-api.html">
 
@@ -59,15 +60,18 @@ process is succesful and __instance__ holds a
 <dom-module id="github-signin">
   <template>
     <style>
-      paper-button {
-        background-color: #6cc644;
-      }
+        paper-button{
+            @apply(--github-signin-button);
+        }
     </style>
 
     <github-api token="{{token}}" on-instance-changed="_updateInstance" signed-in="{{signedIn}}"></github-api>
 
     <template is="dom-if" if="{{!signedIn}}">
-      <paper-button raised on-tap="redirect">Authenticate</paper-button>
+        <paper-button raised on-tap="redirect">
+            <iron-icon src="{{buttonIcon}}"></iron-icon>
+            {{buttonLabel}}
+        </paper-button>
     </template>
   </template>
   <script>
@@ -83,6 +87,24 @@ process is succesful and __instance__ holds a
            * The client ID you received from GitHub when you registered.
            */
           client_id: String,
+          /**
+            * The Button Icon
+           */
+          buttonIcon: {
+             type: String,
+             notify: true,
+             reflectToAttribute: true,
+              value: 'images/icon.png'
+            },
+          /**
+           * The button label.
+           */
+          buttonLabel: {
+              type: String,
+              notify: true,
+              reflectToAttribute: true,
+              value: 'Sign in'
+          },
           /**
            * The URL in your app where users will be sent after authorization.
            */
