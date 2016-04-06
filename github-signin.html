@@ -9,7 +9,6 @@ subject to an additional IP rights grant found at http://polymer.Github.io/PATEN
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../iron-icon/iron-icon.html">
 
 <link rel="import" href="github-api.html">
 
@@ -58,147 +57,129 @@ process is succesful and __instance__ holds a
 @demo demo/index.html
 -->
 <dom-module id="github-signin">
-    <template>
-        <style>
-            paper-button{
-                @apply(--github-signin-button);
-            }
-        </style>
+  <template>
+    <style>
+      paper-button {
+        background-color: #6cc644;
+      }
+    </style>
 
-        <github-api token="{{token}}" on-instance-changed="_updateInstance" signed-in="{{signedIn}}"></github-api>
+    <github-api token="{{token}}" on-instance-changed="_updateInstance" signed-in="{{signedIn}}"></github-api>
 
-        <template is="dom-if" if="{{!signedIn}}">
-            <paper-button raised on-tap="redirect">
-                <iron-icon src="{{buttonIcon}}"></iron-icon>
-                {{buttonLabel}}
-                
-            </paper-button>
-        </template>
+    <template is="dom-if" if="{{!signedIn}}">
+      <paper-button raised on-tap="redirect">Authenticate</paper-button>
     </template>
-    <script>
-        HTMLImports.whenReady(function () {
-            'use strict';
+  </template>
+  <script>
+    HTMLImports.whenReady(function() {
+      'use strict';
 
-            Polymer({
-                is: 'github-signin',
-                properties: {
-                    /**
-                     * The client ID you received from GitHub when you registered.
-                     */
-                    client_id: String,
-                    /**
-                     * The Button Icon
-                     */
-                    buttonIcon: {
-                        type: String,
-                        notify: true,
-                        reflectToAttribute: true,
-                        value: 'images/icon.png'
-                    },
-                    /**
-                     * The button label.
-                     */
-                    buttonLabel: {
-                        type: String,
-                        notify: true,
-                        reflectToAttribute: true,
-                        value: 'Sign in'
-                    },
-                    /**
-                     * The URL in your app where users will be sent after authorization.
-                     */
-                    redirect_endpoint: {
-                        type: String,
-                        value: ''
-                    },
-                    /**
-                     * A comma separated list of scopes. If not provided, scope defaults
-                     * to an empty list of scopes for users that don't have a valid token
-                     * for the app. For users who do already have a valid token for
-                     * the app, the user won't be shown the OAuth authorization page with
-                     * the list of scopes. Instead, this step of the flow will
-                     * automatically complete with the same scopes that were used last
-                     * time the user completed the flow.
-                     */
-                    scope: String,
-                    /**
-                     * Origin that invokes a postMessage to the main window.
-                     */
-                    origin: String,
-                    /**
-                     * Github object to invoke APIs to Github.
-                     */
-                    instance: {
-                        type: Object,
-                        readOnly: true,
-                        notify: true
-                    },
-                    /**
-                     * OAuth token used to authenticate with the GitHub api.
-                     */
-                    token: {
-                        type: String,
-                        notify: true
-                    }
-                },
-                // Element Behavior
+      Polymer({
 
-                _updateInstance: function (event) {
-                    this._setInstance(event.detail.value);
-                },
-                /**
-                 * Fired when the authorization process is completed and succesful.
-                 *
-                 * @event authorization-success
-                 */
+        is: 'github-signin',
 
-                /**
-                 * Fired when the authorization process is completed and failed.
-                 *
-                 * @event authorization-failure
-                 */
+        properties: {
+          /**
+           * The client ID you received from GitHub when you registered.
+           */
+          client_id: String,
+          /**
+           * The URL in your app where users will be sent after authorization.
+           */
+          redirect_endpoint: {
+            type: String,
+            value: ''
+          },
+          /**
+           * A comma separated list of scopes. If not provided, scope defaults
+           * to an empty list of scopes for users that don't have a valid token
+           * for the app. For users who do already have a valid token for
+           * the app, the user won't be shown the OAuth authorization page with
+           * the list of scopes. Instead, this step of the flow will
+           * automatically complete with the same scopes that were used last
+           * time the user completed the flow.
+           */
+          scope: String,
+          /**
+           * Origin that invokes a postMessage to the main window.
+           */
+          origin: String,
+          /**
+           * Github object to invoke APIs to Github.
+           */
+          instance: {
+            type: Object,
+            readOnly: true,
+            notify: true
+          },
+          /**
+           * OAuth token used to authenticate with the GitHub api.
+           */
+          token: {
+            type: String,
+            notify: true
+          }
+        },
 
-                /**
-                 * Redirect the client to GitHub to obtain an authentication token.
-                 * __client_id__ and __redirect_uri__ are required. __scope__ and __state__
-                 * are optionally appended.
-                 *
-                 * This method will listen for a message containing the __token__ to
-                 * store and use to communicate with GitHub.
-                 */
-                redirect: function () {
-                    var location = 'https://github.com/login/oauth/authorize?client_id=' +
-                            this.client_id + '&redirect_uri=' +
-                            this.origin + this.redirect_endpoint,
-                            self = this;
+        // Element Behavior
 
-                    ['scope', 'state'].forEach(function (field) {
-                        var value;
-                        if (value = self[field]) {
-                            location += '&' + field + '=' + value;
-                        }
-                    });
+        _updateInstance: function(event) {
+          this._setInstance(event.detail.value);
+        },
 
-                    var listener = function (event) {
-                        window.removeEventListener('message', listener);
+        /**
+         * Fired when the authorization process is completed and succesful.
+         *
+         * @event authorization-success
+         */
 
-                        if (event.origin !== self.origin) {
-                            self.fire('authorization-failure');
-                            return;
-                        }
+        /**
+         * Fired when the authorization process is completed and failed.
+         *
+         * @event authorization-failure
+         */
 
-                        self.token = event.data;
-                        self.fire('authorization-success');
-                    };
+        /**
+         * Redirect the client to GitHub to obtain an authentication token.
+         * __client_id__ and __redirect_uri__ are required. __scope__ and __state__
+         * are optionally appended.
+         *
+         * This method will listen for a message containing the __token__ to
+         * store and use to communicate with GitHub.
+         */
+        redirect: function() {
+          var location = 'https://github.com/login/oauth/authorize?client_id=' +
+                          this.client_id + '&redirect_uri=' +
+                          this.origin + this.redirect_endpoint,
+            self = this;
 
-                    window.addEventListener('message', listener, false);
+          ['scope', 'state'].forEach(function(field) {
+            var value;
+            if (value = self[field]) {
+              location += '&' + field + '=' + value;
+            }
+          });
 
-                    if (!window.open(location, 'GITHUB_SIGNIN_ELEMENT')) {
-                        this.fire('authorization-failure');
-                        window.removeEventListener('message', listener);
-                    }
-                }
-            });
-        });
-    </script>
+          var listener = function(event) {
+            window.removeEventListener('message', listener);
+
+            if (event.origin !== self.origin) {
+              self.fire('authorization-failure');
+              return;
+            }
+
+            self.token = event.data;
+            self.fire('authorization-success');
+          };
+
+          window.addEventListener('message', listener, false);
+
+          if (!window.open(location, 'GITHUB_SIGNIN_ELEMENT')) {
+            this.fire('authorization-failure');
+            window.removeEventListener('message', listener);
+          }
+        }
+      });
+    });
+  </script>
 </dom-module>
